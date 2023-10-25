@@ -12,7 +12,6 @@ contract RockPaperScissors {
     uint private movePlayerB;
 
     function register() public payable  returns (uint){
-        //require(playerA == address(0x0) || playerB == address(0x0), "This game is already full.");
         if (playerA == address(0x0)) {
             playerA = payable(msg.sender);
             return 1;    

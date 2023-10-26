@@ -24,9 +24,9 @@ contract RockPaperScissors {
     }
 
     function play(uint move) public {
-        require(msg.sender == playerA || msg.sender == playerB, "You are not a player in this game.");
-        require(movePlayerA == 0 || movePlayerB == 0, "You have already made your choice.");
-        require(move >= 1 && move <= 3, "Invalid choice. Choose 1 for rock, 2 for paper, or 3 for scissors.");
+        require(msg.sender == playerA || msg.sender == playerB, "You are not a player");
+        require(movePlayerA == 0 || movePlayerB == 0, "You have already made your choice");
+        require(move >= 1 && move <= 3, "Invalid choice");
 
         if (msg.sender == playerA && movePlayerA == 0){
             movePlayerA = move;
@@ -39,7 +39,7 @@ contract RockPaperScissors {
     function getWinner() public {
         require(movePlayerA != 0 && movePlayerB != 0, "You have not made your choice.");
         if (movePlayerA == movePlayerB){
-            emit Winner(address(0)); // ничья 
+            emit Winner(address(0x0)); // ничья 
             resetGame();
         }
         else if ((movePlayerA == 1 && movePlayerB == 2) || (movePlayerA == 2 && movePlayerB == 3) || (movePlayerA == 3 && movePlayerB == 1)) {

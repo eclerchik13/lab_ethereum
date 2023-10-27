@@ -1,0 +1,71 @@
+from web3 import Web3
+import json
+import asyncio
+
+from win32comext.shell.demos.explorer_browser import EventHandler
+
+infura_ulr = "https://sepolia.infura.io/v3/4064dc8d26dc48cda9844dc32979a28e"
+w3 = Web3(Web3.HTTPProvider(infura_ulr))
+print(w3.is_connected())
+
+
+my_address = Web3.to_checksum_address('0x62393156CC6610BfeA5aD04C3FF7630B05Ca246a')
+my_balance = w3.eth.get_balance(my_address)
+
+# 0x462fd06547983d82a92db041911d1d49b6372b7d Contract
+address_contract = Web3.to_checksum_address('0x462fd06547983d82a92db041911d1d49b6372b7d')
+abi_contract = json.loads(open('abi_contact.json').read())
+
+pool_contract = w3.eth.contract(abi=abi_contract, address=address_contract)
+pool = pool_contract.functions
+
+players = pool.getPlayers().call()
+print("Игроки:\n1)", players[0],"\n2)",players[1])
+
+# тут точки, так как это секретная информация
+mnemonic = '...............................................'
+w3.eth.account.enable_unaudited_hdwallet_features()
+account = w3.eth.account.from_mnemonic(mnemonic)
+private_key = account.key
+print("pr", type(private_key))
+
+'''
+txn = {
+    'from': my_address,
+    'gasPrice': w3.eth.gas_price,
+    'nonce': w3.eth.get_transaction_count(my_address)
+}
+info_player_A = 13
+transaction = pool.installInfoPlayer(info_player_A).build_transaction(txn)
+
+signed_txn = w3.eth.account.sign_transaction(transaction, private_key)
+txn_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+print("HEX transaction: ", txn_hash.hex())
+'''
+
+txn_our_hash = '0x90d008998070a87eace01db0539a6011693249f80fe29ab3814e08383c860752'
+txn_receipt = w3.eth.get_transaction_receipt(txn_our_hash)
+print(txn_receipt)
+
+
+filter_params = {'fromBlock': 4573224,
+                 'toBlock': 'latest',
+                 'address': address_contract}
+
+
+def EventHandler(event):
+    event = Web3.to_json(event)
+    event = json.loads(event)
+    print(event)
+
+
+async def EventLogLoop(event_filter, pool_interval):
+    while True:
+        for event in event_filter.get_new_entries():
+            EventHandler(event)
+        await asyncio.sleep(pool_interval)
+
+events = pool_contract.events.Players().create_filter(fromBlock='latest')
+asyncio.run(EventLogLoop(events, 2))
+
+exit()

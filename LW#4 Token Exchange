@@ -1,0 +1,39 @@
+// SPDX-License-Identifier:  GPL-3.0
+pragma solidity >=0.8.2 <0.9.0;
+
+import "./7_TokenA.sol";
+import "./8_TokenB.sol";
+
+contract TokenExchange {
+    TokenA public tokenA;
+    TokenB public tokenB;
+
+    event TokensExchanged(address from, address to, uint256 amount, string fromToken, string toToken);
+
+    constructor(address _tokenA, address _tokenB) {
+        tokenA = TokenA(_tokenA);
+        tokenB = TokenB(_tokenB);
+    }
+
+    function getTokensA(uint256 amount) external {
+        tokenA.transfer(msg.sender, amount);
+    }
+
+    function getTokensB(uint256 amount) external {
+        tokenB.transfer(msg.sender, amount);
+    }
+
+    function exchangeAToB(uint256 amount) external {
+        require(tokenA.transferFrom(msg.sender, address(this), amount), "Transfer failed");
+        uint256 amountB = amount / 2; 
+        tokenB.transfer(msg.sender, amountB);
+        emit TokensExchanged(msg.sender, address(this), amount, "TokenA", "TokenB");
+    }
+
+    function exchangeBToA(uint256 amount) external {
+        require(tokenB.transferFrom(msg.sender, address(this), amount), "Transfer failed");
+        uint256 amountA = amount * 2; 
+        tokenA.transfer(msg.sender, amountA);
+        emit TokensExchanged(msg.sender, address(this), amount, "TokenB", "TokenA");
+    }
+}

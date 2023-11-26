@@ -1,0 +1,19 @@
+// SPDX-License-Identifier: GPL-3.0
+
+pragma solidity >=0.8.2 <0.9.0;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract TokenA is ERC20 {
+
+    event EventTokenSend(address from, address to, uint256 amount);
+
+    constructor() ERC20('TokenA', 'TKA') {
+        _mint(msg.sender, 100 * (10 ** 18));
+    }
+
+    function transfer(address to, uint256 value) public virtual override returns (bool) {
+        emit EventTokenSend(msg.sender, to, value);
+        return super.transfer(to, value);
+    }
+}
